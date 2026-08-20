@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { ClassDetailModal } from '../../components/ClassManagement/ClassDetailModal.jsx'
 import { ClassListTable } from '../../components/ClassManagement/ClassListTable.jsx'
 import { ClassScheduleDetailModal, ClassScheduleTable } from '../../components/ClassManagement/ClassScheduleTable.jsx'
+import { CreateClassModal } from '../../components/ClassManagement/CreateClassModal.jsx'
 import { TeacherAssignmentModal } from '../../components/ClassManagement/TeacherAssignmentModal.jsx'
 import { TeacherAssignmentTable } from '../../components/ClassManagement/TeacherAssignmentTable.jsx'
 import { TeacherScheduleModal } from '../../components/ClassManagement/TeacherScheduleModal.jsx'
@@ -25,6 +26,31 @@ const tabs = [
 const defaultAssignmentRole = 'Giáo viên chính'
 const classPageSize = 10
 const teacherPageSize = 5
+const defaultClassForm = {
+  campus: '',
+  course: '',
+  endDate: '',
+  name: '',
+  roomDetail: '',
+  specialty: '',
+  startDate: '',
+  status: 'Chưa phân giáo viên',
+  studentCapacity: '20',
+  studentCount: '0',
+  timeEnd: '20:00',
+  timeStart: '18:30',
+  weekdays: ['T2', 'T4'],
+}
+
+const weekdayLabels = {
+  T2: 'Thứ 2',
+  T3: 'Thứ 3',
+  T4: 'Thứ 4',
+  T5: 'Thứ 5',
+  T6: 'Thứ 6',
+  T7: 'Thứ 7',
+  CN: 'Chủ nhật',
+}
 
 const parseMinutes = (time) => {
   const [hour, minute] = time.split(':').map((part) => Number(part) || 0)
@@ -48,6 +74,28 @@ const hasTimeOverlap = (firstTime, secondTime) => {
   return first.start < second.end && second.start < first.end
 }
 
+const formatWeekdaysForView = (weekdays) => weekdays.map((day) => weekdayLabels[day]).join(', ')
+
+const formatWeekdaysForSchedule = (weekdays) => weekdays.join('-')
+
+const formatDateForView = (value) => {
+  if (!value) return ''
+
+  const [year, month, day] = value.split('-')
+  return `${day}/${month}/${year}`
+}
+
+const makeClassId = (rows) => {
+  const nextNumber = rows.reduce((maxNumber, item) => {
+    const number = Number(String(item.id).replace(/\D/g, '')) || 0
+    return Math.max(maxNumber, number)
+  }, 1000) + 1
+
+  return `CLASS-${nextNumber}`
+}
+
+const getClassCapacity = (students) => String(students || '0/20').split('/')[1] || '20'
+
 export const ClassManagementPage = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].id)
   const [classRows, setClassRows] = useState(classList)
@@ -68,6 +116,7 @@ export const ClassManagementPage = () => {
   const [classPage, setClassPage] = useState(1)
   const [teacherPage, setTeacherPage] = useState(1)
   const [assignmentForm, setAssignmentForm] = useState(null)
+  const [classForm, setClassForm] = useState(null)
   const [selectedClass, setSelectedClass] = useState(null)
   const [selectedTeacherSchedule, setSelectedTeacherSchedule] = useState(null)
   const [selectedClassSchedule, setSelectedClassSchedule] = useState(null)
@@ -78,6 +127,17 @@ export const ClassManagementPage = () => {
   const teacherOptions = useMemo(() => teacherRows.map((item) => item.teacher), [teacherRows])
   const teacherStatusOptions = useMemo(() => [...new Set(teacherRows.map((item) => item.status))], [teacherRows])
   const roomOptions = useMemo(() => [...new Set(classRows.map((item) => item.room))], [classRows])
+  const courseProfiles = useMemo(() => courseOptions.map((course) => {
+    const courseClasses = classRows.filter((item) => item.course === course)
+    const firstClass = courseClasses[0] || {}
+
+    return {
+      campuses: [...new Set(courseClasses.map((item) => item.campus))],
+      capacity: getClassCapacity(firstClass.students),
+      course,
+      specialty: firstClass.specialty || course,
+    }
+  }), [classRows, courseOptions])
   const filteredClasses = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase()
     return classRows.filter((item) => {
@@ -146,6 +206,78 @@ export const ClassManagementPage = () => {
     const matchesRoom = scheduleRoomFilter === 'Tất cả phòng' || item.room === scheduleRoomFilter
     return matchesCampus && matchesCourse && matchesTeacher && matchesRoom
   }), [classRows, scheduleCampusFilter, scheduleCourseFilter, scheduleRoomFilter, scheduleTeacherFilter])
+  const selectedClassCourseProfile = useMemo(
+    () => courseProfiles.find((item) => item.course === classForm?.course) || courseProfiles[0] || null,
+    [classForm?.course, courseProfiles],
+  )
+
+  const openClassForm = () => {
+    const selectedCourse = courseFilter !== allCoursesOption ? courseFilter : courseOptions[0] || ''
+    const selectedProfile = courseProfiles.find((item) => item.course === selectedCourse) || courseProfiles[0]
+
+    setClassForm({
+      ...defaultClassForm,
+      campus: selectedProfile?.campuses[0] || campusOptions[0] || 'Cơ sở Phú Nhuận',
+      course: selectedCourse,
+      specialty: selectedProfile?.specialty || '',
+      studentCapacity: selectedProfile?.capacity || defaultClassForm.studentCapacity,
+    })
+  }
+
+  const updateClassForm = (field, value) => {
+    setClassForm((current) => {
+      const next = { ...current, [field]: value }
+
+      if (field === 'course') {
+        const nextProfile = courseProfiles.find((item) => item.course === value)
+        next.campus = nextProfile?.campuses[0] || ''
+        next.specialty = nextProfile?.specialty || value
+        next.studentCapacity = nextProfile?.capacity || defaultClassForm.studentCapacity
+      }
+
+      return next
+    })
+  }
+
+  const handleCreateClass = (event) => {
+    event.preventDefault()
+    const course = classForm.course.trim()
+    const name = classForm.name.trim()
+    const roomDetail = classForm.roomDetail.trim().replace(/^P\.?\s*/i, '')
+
+    if (!course || !name || !roomDetail || !classForm.weekdays.length) {
+      toast.error('Vui lòng chọn khóa học, ngày học, tên lớp và phòng học.')
+      return
+    }
+
+    const newClass = {
+      id: makeClassId(classRows),
+      name,
+      shortName: name,
+      course,
+      specialty: classForm.specialty.trim() || course,
+      campus: classForm.campus,
+      teacher: '',
+      schedule: `${formatWeekdaysForSchedule(classForm.weekdays)}, ${classForm.timeStart}`,
+      days: formatWeekdaysForView(classForm.weekdays),
+      time: `${classForm.timeStart} - ${classForm.timeEnd}`,
+      room: `P.${roomDetail}`,
+      roomDetail,
+      students: `${Number(classForm.studentCount) || 0}/${Number(classForm.studentCapacity) || 0}`,
+      status: classForm.status,
+      startDate: formatDateForView(classForm.startDate),
+      endDate: formatDateForView(classForm.endDate),
+    }
+
+    setClassRows((current) => [newClass, ...current])
+    setCourseFilter(course)
+    setCampusFilter(allCampusesOption)
+    setStatusFilter(allStatusesOption)
+    setKeyword('')
+    setClassPage(1)
+    setClassForm(null)
+    toast.success(`Đã thêm lớp ${newClass.name} cho khóa ${newClass.course}.`)
+  }
 
   const openAssignmentModal = (teacher = null) => {
     const firstUnassignedClass = classRows.find((item) => !item.teacher) || classRows[0]
@@ -204,8 +336,8 @@ export const ClassManagementPage = () => {
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <p className="text-sm font-bold text-orange-600">Lớp học</p>
-          <h1 className="mt-1 text-2xl font-black text-slate-950 md:text-3xl">Quản lý lớp học</h1>
+          <p className="text-sm font-bold text-orange-600">Khóa học</p>
+          <h1 className="mt-1 text-2xl font-black text-slate-950 md:text-3xl">Quản lý khóa học và lớp</h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-500">Theo dõi danh sách lớp, phân phối giáo viên và lịch học theo từng phòng.</p>
         </div>
         <PageTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
@@ -213,6 +345,16 @@ export const ClassManagementPage = () => {
 
       {activeTab === 'classes' && (
         <>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-sm font-bold text-orange-600">Danh sách lớp</p>
+              <h2 className="mt-1 text-xl font-black text-slate-950">Thêm lớp mới cho từng khóa học.</h2>
+            </div>
+            <Button type="button" onClick={openClassForm}>
+              <Plus size={18} /> Thêm lớp mới
+            </Button>
+          </div>
+
           <Card className="rounded-lg bg-gradient-to-br from-orange-50 via-white to-amber-50">
             <div className="space-y-4">
               <label className="block">
@@ -322,6 +464,17 @@ export const ClassManagementPage = () => {
         </>
       )}
       {selectedClass && <ClassDetailModal classItem={selectedClass} onClose={() => setSelectedClass(null)} />}
+      {classForm && (
+        <CreateClassModal
+          campusOptions={selectedClassCourseProfile?.campuses.length ? selectedClassCourseProfile.campuses : campusOptions}
+          courseOptions={courseOptions}
+          form={classForm}
+          onChange={updateClassForm}
+          onClose={() => setClassForm(null)}
+          onSubmit={handleCreateClass}
+          statusOptions={statusOptions}
+        />
+      )}
       {selectedClassSchedule && (
         <ClassScheduleDetailModal
           schedule={selectedClassSchedule}
