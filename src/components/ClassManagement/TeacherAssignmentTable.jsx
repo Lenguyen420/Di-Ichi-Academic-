@@ -12,7 +12,10 @@ export const TeacherAssignmentTable = ({ assignments, onAssign, onViewSchedule }
     { header: 'Chuyên môn', accessorKey: 'specialty' },
     { header: 'Lớp đang dạy', cell: ({ row }) => row.original.classNames.length ? row.original.classNames.join(', ') : '—' },
     { header: 'Số lớp', accessorKey: 'classCount' },
-    { header: 'Lịch dạy', cell: ({ row }) => row.original.teachingDays || '—' },
+    {
+      header: 'Lịch dạy',
+      cell: ({ row }) => row.original.teachingSchedule || row.original.teachingDays || '—',
+    },
     { header: 'Trạng thái', cell: ({ row }) => <Badge tone={getTone(row.original.status)}>{row.original.status}</Badge> },
     {
       header: 'Thao tác',

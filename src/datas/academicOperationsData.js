@@ -155,6 +155,47 @@ export const teacherAssignments = [
   { id: 'TA-1004', teacher: 'Lê Anh Khoa', specialty: 'IELTS', classNames: [], classCount: 0, teachingDays: '', status: 'Chưa phân lớp', campus: 'Cơ sở Bình Thạnh', course: 'Di-Ichi Leader' },
 ]
 
+const studentNamePool = [
+  'An Nhiên', 'Bảo Anh', 'Chí Kiên', 'Diệu Linh', 'Gia Hân', 'Hoàng Minh', 'Khánh Vy', 'Lan Anh',
+  'Minh Quân', 'Ngọc Hân', 'Phúc Khang', 'Quỳnh Chi', 'Thanh Bình', 'Uyên Nhi', 'Việt Anh', 'Yến Nhi',
+  'Anh Khoa', 'Bảo Châu', 'Cẩm Tú', 'Đăng Khôi', 'Hà My', 'Hải Nam', 'Kim Ngân', 'Minh Châu',
+]
+
+const studentClassSeeds = [
+  { classId: 'CLASS-1001', count: 16, course: 'IELTS Foundation' },
+  { classId: 'CLASS-1002', count: 15, course: 'IELTS Foundation' },
+  { classId: 'CLASS-1003', count: 10, course: 'IELTS Foundation' },
+  { classId: 'CLASS-1004', count: 8, course: 'IELTS Foundation' },
+  { classId: 'CLASS-1005', count: 14, course: 'Future Stars' },
+  { classId: 'CLASS-1006', count: 18, course: 'Bright Stars' },
+  { classId: 'CLASS-1007', count: 12, course: 'Di-Ichi Leader' },
+]
+
+export const studentAssignments = [
+  ...studentClassSeeds.flatMap((group, groupIndex) => Array.from({ length: group.count }, (_, index) => {
+    const studentNumber = groupIndex * 24 + index + 1
+    const paddedNumber = String(studentNumber).padStart(4, '0')
+    const name = `${studentNamePool[(studentNumber - 1) % studentNamePool.length]} ${String(index + 1).padStart(2, '0')}`
+
+    return {
+      id: `ST-${paddedNumber}`,
+      name,
+      phone: `09${String(10000000 + studentNumber * 137).slice(-8)}`,
+      email: `student${paddedNumber}@di-ichi.edu.vn`,
+      targetCourse: group.course,
+      classId: group.classId,
+      status: 'Đang học',
+      paymentStatus: index % 5 === 0 ? 'Còn công nợ' : 'Đã thanh toán',
+      enrolledAt: `${String((index % 20) + 1).padStart(2, '0')}/08/2026`,
+      note: index % 7 === 0 ? 'Cần theo dõi chuyên cần' : '',
+    }
+  })),
+  { id: 'ST-2001', name: 'Mai Phương', phone: '0908123456', email: 'maiphuong@di-ichi.edu.vn', targetCourse: 'IELTS Foundation', classId: '', status: 'Chờ phân lớp', paymentStatus: 'Đã đặt cọc', enrolledAt: '19/08/2026', note: 'Ưu tiên lớp tối T2-T4' },
+  { id: 'ST-2002', name: 'Tuấn Anh', phone: '0908234567', email: 'tuananh@di-ichi.edu.vn', targetCourse: 'Future Stars', classId: '', status: 'Chờ phân lớp', paymentStatus: 'Đã thanh toán', enrolledAt: '19/08/2026', note: 'Cần lớp cơ sở Phú Nhuận' },
+  { id: 'ST-2003', name: 'Minh Thư', phone: '0908345678', email: 'minhthu@di-ichi.edu.vn', targetCourse: 'Bright Stars', classId: '', status: 'Chờ phân lớp', paymentStatus: 'Đã đặt cọc', enrolledAt: '20/08/2026', note: 'Phụ huynh chọn cuối tuần' },
+  { id: 'ST-2004', name: 'Quốc Huy', phone: '0908456789', email: 'quochuy@di-ichi.edu.vn', targetCourse: 'Di-Ichi Leader', classId: '', status: 'Chờ phân lớp', paymentStatus: 'Còn công nợ', enrolledAt: '20/08/2026', note: 'Chờ xác nhận lịch' },
+]
+
 export const classSchedules = [
   { id: 'SCH-1001', className: 'IELTS Foundation 08A', weekday: 'Thứ 2, Thứ 4', time: '18:30 - 20:00', room: 'Phòng 201', teacher: 'Nguyễn Thùy Linh' },
   { id: 'SCH-1002', className: 'IELTS Foundation 08B', weekday: 'Thứ 3, Thứ 5', time: '18:30 - 20:00', room: 'Phòng 202', teacher: 'Đỗ Minh Quân' },
