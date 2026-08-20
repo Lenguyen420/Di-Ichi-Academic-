@@ -9,7 +9,7 @@ const parseClassSize = (students) => {
   return { capacity, current, remaining: Math.max(capacity - current, 0) }
 }
 
-export const ClassDetailModal = ({ classItem, onClose }) => {
+export const ClassDetailModal = ({ classItem, onClose, students = [] }) => {
   const [activeTab, setActiveTab] = useState('info')
   if (!classItem) return null
 
@@ -62,10 +62,46 @@ export const ClassDetailModal = ({ classItem, onClose }) => {
           )}
 
           {activeTab === 'students' && (
-            <div className="rounded-lg border border-orange-100 bg-white p-4">
-              <p className="text-sm font-bold text-slate-500">Sĩ số hiện tại</p>
-              <p className="mt-1 text-xl font-black text-slate-950">{classItem.students}</p>
-              <p className="mt-2 text-sm font-semibold text-slate-600">Còn {seats.remaining} chỗ trống.</p>
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-3">
+                <Info label="Sĩ số hiện tại" value={classItem.students} />
+                <Info label="Còn trống" value={`${seats.remaining} chỗ`} />
+                <Info label="Học viên trong danh sách" value={`${students.length} học viên`} />
+              </div>
+
+              <div className="overflow-hidden rounded-lg border border-orange-100 bg-white">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-orange-100 text-left text-sm">
+                    <thead className="bg-orange-50 text-xs uppercase text-orange-700">
+                      <tr>
+                        <th className="px-4 py-3 font-black">Học viên</th>
+                        <th className="px-4 py-3 font-black">Liên hệ</th>
+                        <th className="px-4 py-3 font-black">Ngày ghi danh</th>
+                        <th className="px-4 py-3 font-black">Học phí</th>
+                        <th className="px-4 py-3 font-black">Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-orange-50">
+                      {students.length ? students.map((student) => (
+                        <tr key={student.id} className="hover:bg-orange-50/60">
+                          <td className="px-4 py-3">
+                            <p className="font-black text-slate-900">{student.name}</p>
+                            <p className="mt-1 text-xs font-semibold text-slate-500">{student.id}</p>
+                          </td>
+                          <td className="px-4 py-3 text-slate-700">{student.phone}</td>
+                          <td className="px-4 py-3 text-slate-700">{student.enrolledAt}</td>
+                          <td className="px-4 py-3"><Badge tone={student.paymentStatus === 'Còn công nợ' ? 'rose' : 'green'}>{student.paymentStatus}</Badge></td>
+                          <td className="px-4 py-3"><Badge tone={student.status === 'Đang học' ? 'green' : 'amber'}>{student.status}</Badge></td>
+                        </tr>
+                      )) : (
+                        <tr>
+                          <td className="px-4 py-5 text-center font-semibold text-slate-500" colSpan={5}>Lớp chưa có học viên.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 

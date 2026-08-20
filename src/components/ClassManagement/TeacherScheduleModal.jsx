@@ -23,7 +23,7 @@ export const TeacherScheduleModal = ({ classes, onClose, teacher }) => {
         <div className="space-y-4 p-5">
           <div className="grid gap-3 md:grid-cols-3">
             <SummaryItem icon={<GraduationCap size={18} />} label="Số lớp" value={String(classes.length)} />
-            <SummaryItem icon={<CalendarDays size={18} />} label="Lịch dạy" value={teacher.teachingDays || '—'} />
+            <SummaryItem icon={<CalendarDays size={18} />} label="Lịch dạy" value={teacher.teachingSchedule || teacher.teachingDays || '—'} />
             <SummaryItem icon={<DoorOpen size={18} />} label="Trạng thái" value={<Badge tone={teacher.status === 'Chưa phân lớp' ? 'amber' : 'green'}>{teacher.status}</Badge>} />
           </div>
 
