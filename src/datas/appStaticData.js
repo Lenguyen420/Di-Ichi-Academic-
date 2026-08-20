@@ -30,7 +30,7 @@ export const placementResultStatuses = ['Chờ đánh giá', 'Đã tư vấn', '
 
 export const menuItemData = [
   { label: 'Tổng quan', path: '/dashboard', icon: 'LayoutDashboard', badge: null },
-  { label: 'Lớp học', path: '/lop-hoc', icon: 'GraduationCap', badge: null },
+  { label: 'Khóa học', path: '/lop-hoc', icon: 'GraduationCap', badge: null },
   { label: 'Thiết bị lớp học', path: '/thiet-bi-lop-hoc', icon: 'Projector', badge: '4' },
   { label: 'Báo cáo', path: '/bao-cao', icon: 'ChartColumn', badge: null },
 ]
