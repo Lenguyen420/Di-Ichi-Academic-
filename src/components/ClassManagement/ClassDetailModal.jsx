@@ -25,7 +25,7 @@ export const ClassDetailModal = ({ classItem, onClose, students = [] }) => {
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/20 p-4">
       <button className="absolute inset-0 cursor-default" type="button" onClick={onClose} aria-label="Đóng popup chi tiết lớp học" />
-      <section className="relative z-10 w-full max-w-4xl overflow-hidden rounded-lg border border-orange-100 bg-white shadow-2xl shadow-slate-950/20">
+      <section className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-orange-100 bg-white shadow-2xl shadow-slate-950/20">
         <div className="flex items-start justify-between gap-4 border-b border-orange-100 px-5 py-4">
           <div>
             <p className="text-sm font-bold text-orange-600">Chi tiết lớp học</p>
@@ -37,7 +37,7 @@ export const ClassDetailModal = ({ classItem, onClose, students = [] }) => {
           </Button>
         </div>
 
-        <div className="space-y-4 p-5">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
           <PageTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
           {activeTab === 'info' && (
@@ -70,7 +70,7 @@ export const ClassDetailModal = ({ classItem, onClose, students = [] }) => {
               </div>
 
               <div className="overflow-hidden rounded-lg border border-orange-100 bg-white">
-                <div className="overflow-x-auto">
+                <div className="max-h-[42vh] overflow-auto">
                   <table className="min-w-full divide-y divide-orange-100 text-left text-sm">
                     <thead className="bg-orange-50 text-xs uppercase text-orange-700">
                       <tr>
