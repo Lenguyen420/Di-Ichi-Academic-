@@ -1,10 +1,12 @@
-import { Bell, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { headerEmployee } from '../../datas/appStaticData.js'
 import { getAuthSession } from '../../services/authSession.js'
+import { HeaderNotifications } from './HeaderNotifications.jsx'
 
 export const Header = ({ onMenu }) => {
   const session = getAuthSession()
   const employeeName = session?.fullName || headerEmployee.name
+
   return (
     <header className="sticky top-0 z-30 border-b border-orange-100 bg-white/85 px-4 py-3 shadow-sm shadow-orange-950/5 backdrop-blur-xl lg:px-6">
       <div className="flex items-center justify-between gap-4">
@@ -27,10 +29,7 @@ export const Header = ({ onMenu }) => {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <button className="relative grid h-11 w-11 place-items-center rounded-2xl border border-orange-100 bg-white text-slate-600 shadow-sm transition hover:bg-orange-50 hover:text-orange-700" aria-label="Thông báo">
-            <Bell size={19} />
-            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white" />
-          </button>
+          <HeaderNotifications />
 
           <button className="flex min-h-12 items-center gap-3 rounded-2xl border border-orange-100 bg-white px-2 py-1.5 shadow-sm transition hover:bg-orange-50">
             <img className="h-9 w-9 rounded-xl object-cover ring-2 ring-orange-100" src={headerEmployee.avatar} alt={employeeName} />
