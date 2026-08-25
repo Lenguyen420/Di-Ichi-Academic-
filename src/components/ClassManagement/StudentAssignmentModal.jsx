@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { X } from 'lucide-react'
 import { Badge } from '../Common/Badge.jsx'
 import { Button } from '../Common/Button.jsx'
@@ -28,7 +29,12 @@ export const StudentAssignmentModal = ({
       </div>
 
       <form className="space-y-4 p-5" onSubmit={onSubmit}>
-        <SelectField label="Học viên" options={students.map((student) => ({ label: `${student.name} - ${student.targetCourse}`, value: student.id }))} value={form.studentId} onChange={(value) => onChange('studentId', value)} />
+        {/* <SelectField label="Học viên" options={students.map((student) => ({ label: `${student.name} - ${student.targetCourse}`, value: student.id }))} value={form.studentId} onChange={(value) => onChange('studentId', value)} /> */}
+        <StudentAutocomplete
+          students={students}
+          value={form.studentId}
+          onChange={(value) => onChange('studentId', value)}
+        />
         <SelectField label="Khóa học" options={courseOptions.map((course) => ({ label: course, value: course }))} value={form.course} onChange={(value) => onChange('course', value)} />
         <SelectField label="Lớp học" options={availableClasses.map((classItem) => ({ label: `${classItem.name} (${classItem.students})`, value: classItem.id }))} value={form.classId} onChange={(value) => onChange('classId', value)} />
 
@@ -91,3 +97,110 @@ const Info = ({ label, value }) => (
     <div className="mt-1 font-semibold text-slate-800">{value}</div>
   </div>
 )
+
+const StudentAutocomplete = ({ students, value, onChange }) => {
+  const [keyword, setKeyword] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+
+  const selectedStudent = useMemo(
+    () => students.find((student) => student.id === value),
+    [students, value]
+  )
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setKeyword(selectedStudent.name)
+    }
+  }, [selectedStudent])
+
+  const filteredStudents = useMemo(() => {
+    const normalizedKeyword = keyword.trim().toLowerCase()
+
+    if (!normalizedKeyword) return students
+
+    return students.filter((student) =>
+      student.name.toLowerCase().includes(normalizedKeyword)
+    )
+  }, [keyword, students])
+
+  const handleChange = (event) => {
+    const newValue = event.target.value
+
+    setKeyword(newValue)
+    setIsOpen(true)
+
+    // Nếu người dùng sửa tên sau khi đã chọn học viên
+    // thì bỏ lựa chọn cũ để tránh sai dữ liệu
+    if (selectedStudent && newValue !== selectedStudent.name) {
+      onChange('')
+    }
+  }
+
+  const handleSelect = (student) => {
+    onChange(student.id)
+    setKeyword(student.name)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative">
+      <label className="block">
+        <span className="text-sm font-black text-slate-700">
+          Học viên
+        </span>
+
+        <input
+          type="text"
+          value={keyword}
+          onChange={handleChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder="Nhập tên học viên để tìm kiếm..."
+          autoComplete="off"
+          className="mt-2 h-11 w-full rounded-lg border border-orange-100 bg-white px-3 text-sm outline-none placeholder:text-slate-400 focus:border-orange-300 focus:ring-4 focus:ring-orange-100"
+        />
+      </label>
+
+      {isOpen && (
+        <div className="absolute z-50 mt-2 max-h-56 w-full overflow-y-auto rounded-lg border border-orange-100 bg-white p-1 shadow-xl">
+          {filteredStudents.length > 0 ? (
+            filteredStudents.map((student) => {
+              const isSelected = student.id === value
+
+              return (
+                <button
+                  key={student.id}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => handleSelect(student)}
+                  className={`flex w-full flex-col items-start gap-1 rounded-md px-3 py-3 text-left text-sm transition ${
+                    isSelected
+                      ? 'bg-orange-50 text-orange-700'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex w-full items-center justify-between gap-3">
+                    <span className="font-bold">{student.name}</span>
+
+                    {isSelected && (
+                      <span className="text-xs font-bold text-orange-600">
+                        Đã chọn
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="text-xs font-medium text-slate-500">
+                    Khóa học: {student.targetCourse || 'Chưa cập nhật'}
+                  </span>
+                </button>
+              )
+            })
+          ) : (
+            <div className="px-3 py-4 text-center text-sm font-medium text-slate-500">
+              Không tìm thấy học viên phù hợp
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
