@@ -10,6 +10,7 @@ export const TeacherAssignmentTable = ({ assignments, onAssign, onViewSchedule }
   const columns = [
     { header: 'Giáo viên', accessorKey: 'teacher' },
     { header: 'Chuyên môn', accessorKey: 'specialty' },
+    { header: 'Cơ sở', cell: ({ row }) => row.original.campus || '—' },
     { header: 'Lớp đang dạy', cell: ({ row }) => row.original.classNames.length ? row.original.classNames.join(', ') : '—' },
     { header: 'Số lớp', accessorKey: 'classCount' },
     {

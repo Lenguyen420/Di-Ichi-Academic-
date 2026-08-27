@@ -70,7 +70,8 @@ export const ClassScheduleTable = ({ classes, onViewSchedule }) => {
                             onClick={() => onViewSchedule({ ...event, date: day.date, dayName: day.name })}
                           >
                             <p className="truncate text-xs font-black text-slate-950">{event.shortName}</p>
-                            <p className="mt-1 truncate text-xs font-semibold text-orange-700">{event.room}</p>
+                            <p className="mt-1 truncate text-xs font-semibold text-orange-700">{event.campus}</p>
+                            <p className="mt-1 truncate text-xs font-semibold text-slate-500">{event.room}</p>
                           </button>
                         ))}
                       </div>
@@ -105,6 +106,7 @@ export const ClassScheduleDetailModal = ({ schedule, onClose, onEditSchedule, on
           </div>
 
           <Info label="Giáo viên" value={schedule.teacher || 'Chưa phân giáo viên'} />
+          <Info label="Cơ sở" value={schedule.campus} />
           <Info label="Phòng" value={schedule.roomDetail} />
           <Info label="Sĩ số" value={schedule.students} />
 
