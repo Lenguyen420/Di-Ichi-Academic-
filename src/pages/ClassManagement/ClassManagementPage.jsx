@@ -179,6 +179,7 @@ export const ClassManagementPage = () => {
       ...teacher,
       classCount: assignedClasses.length,
       classNames: assignedClasses.map((classItem) => classItem.shortName),
+      campus: [...new Set(assignedClasses.map((classItem) => classItem.campus))].join(', '),
       course: assignedClasses[0].course,
       teachingDays: [...new Set(assignedClasses.map((classItem) => classItem.days))].join(', '),
       teachingSchedule: [...new Set(assignedClasses.map(getTeachingScheduleLabel))].join('; '),

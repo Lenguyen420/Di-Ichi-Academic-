@@ -5,6 +5,7 @@ export const ClassListTable = ({ classes, onView }) => {
   const columns = [
     { header: 'Lớp học', accessorKey: 'name' },
     { header: 'Khóa học', accessorKey: 'course' },
+    { header: 'Cơ sở', accessorKey: 'campus' },
     { header: 'Giáo viên', cell: ({ row }) => row.original.teacher || '' },
     { header: 'Lịch học', accessorKey: 'schedule' },
     { header: 'Sĩ số', cell: ({ row }) => <Badge>{row.original.students}</Badge> },

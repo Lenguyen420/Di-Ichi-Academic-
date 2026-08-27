@@ -17,6 +17,7 @@ export const StudentAssignmentTable = ({ onAssign, students }) => {
   const columns = [
     { header: 'Học viên', cell: ({ row }) => <StudentInfo student={row.original} /> },
     { header: 'Khóa học', accessorKey: 'targetCourse' },
+    { header: 'Cơ sở', cell: ({ row }) => row.original.campus || '—' },
     { header: 'Lớp hiện tại', cell: ({ row }) => row.original.className || 'Chưa phân lớp' },
     { header: 'Lịch học', cell: ({ row }) => row.original.scheduleLabel || '—' },
     { header: 'Học phí', cell: ({ row }) => <Badge tone={getPaymentTone(row.original.paymentStatus)}>{row.original.paymentStatus}</Badge> },
