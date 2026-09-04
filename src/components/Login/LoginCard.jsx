@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import logo from '../../assets/logo/LOGO_Diichi.webp'
-import { academicAffairsAccount } from '../../datas/appStaticData.js'
 import { loginStaff } from '../../services/authApi.js'
 import { saveAuthSession } from '../../services/authSession.js'
 import { Button } from '../Common/Button.jsx'
@@ -13,8 +12,8 @@ const normalizeEmail = (value) => value.trim().toLowerCase()
 export const LoginCard = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState(academicAffairsAccount.email)
-  const [password, setPassword] = useState(academicAffairsAccount.password)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [rememberLogin, setRememberLogin] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -75,7 +74,7 @@ export const LoginCard = () => {
             <input
               className="min-w-0 flex-1 bg-transparent text-sm outline-none"
               onChange={(event) => setEmail(event.target.value)}
-              placeholder={academicAffairsAccount.email}
+              placeholder="giaovu@di-ichi.edu.vn"
               type="email"
               value={email}
             />
@@ -89,7 +88,7 @@ export const LoginCard = () => {
             <input
               className="min-w-0 flex-1 bg-transparent text-sm outline-none"
               onChange={(event) => setPassword(event.target.value)}
-              placeholder={academicAffairsAccount.password}
+              placeholder="Nhập mật khẩu"
               type={showPassword ? 'text' : 'password'}
               value={password}
             />
